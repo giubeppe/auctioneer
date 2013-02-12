@@ -39,7 +39,7 @@ import org.apache.http.protocol.RequestUserAgent;
 /**
  * Asynchronous HTTP/1.1 RTB Auctioneer.
  */
-public class Auctioneer {
+public class BasicAuctioneer {
 
     private static final int BIDDERS = 20;
     private static final int MAX_WAIT_IN_MS = 200;
@@ -65,7 +65,7 @@ public class Auctioneer {
     private BasicNIOConnPool pool = null;
     private HttpAsyncRequester requester = null;
 
-    public Auctioneer() throws Exception {
+    public BasicAuctioneer() throws Exception {
     	ioReactor = new DefaultConnectingIOReactor();
     	initialize();
     }

@@ -10,7 +10,7 @@ public class BasicAuction {
 		long ts2;
 		long ts = System.currentTimeMillis();
 
-    	Auctioneer auctioneer = new Auctioneer();
+    	BasicAuctioneer auctioneer = new BasicAuctioneer();
     	auctioneer.prepareRequest();
     	
     	for (int i=0; i<100; i++)

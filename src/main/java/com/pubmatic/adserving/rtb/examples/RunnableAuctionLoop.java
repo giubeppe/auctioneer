@@ -3,18 +3,18 @@ package com.pubmatic.adserving.rtb.examples;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-import com.pubmatic.adserving.rtb.Auctioneer;
+import com.pubmatic.adserving.rtb.BasicAuctioneer;
 
 public class RunnableAuctionLoop implements Runnable {
 
-	private final Auctioneer auctioneer;
+	private final BasicAuctioneer auctioneer;
 	private int repetitions;
 	private CountDownLatch latch = null;
 	
 	public RunnableAuctionLoop() throws Exception {
 		
 		repetitions = 1;
-		auctioneer = new Auctioneer();
+		auctioneer = new BasicAuctioneer();
 		auctioneer.prepareRequest();
 	}
 	
