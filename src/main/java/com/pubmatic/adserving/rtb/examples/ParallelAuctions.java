@@ -4,11 +4,13 @@ import java.util.concurrent.CountDownLatch;
 
 public class ParallelAuctions {
 	
-	private static final int REPETITIONS = 100;
+	private static final int REPETITIONS = 10;
 	private static final int THREADS_NUMBER = 30;
 
 	public static void main(String[] args) throws Exception {
 		
+
+		long startTime = System.currentTimeMillis();
 		
 		CountDownLatch latch = new CountDownLatch(THREADS_NUMBER);
 		RunnableAuctionLoop[] auctionLoops = new RunnableAuctionLoop[THREADS_NUMBER]; 
@@ -25,6 +27,12 @@ public class ParallelAuctions {
 		for (RunnableAuctionLoop auctionLoop: auctionLoops) {
 			auctionLoop.shutdown();
 		}
+
+		long endTime = System.currentTimeMillis();
+
+		System.out.println("Elapsed time: " + (endTime - startTime) / 1000.0 + " ms; " +
+				(REPETITIONS * THREADS_NUMBER) / ((endTime - startTime) / 1000.0) + " reqs/sec");
+	
 	}
 
 }

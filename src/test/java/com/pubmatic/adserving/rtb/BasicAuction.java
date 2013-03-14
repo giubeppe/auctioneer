@@ -4,6 +4,8 @@ import org.junit.Test;
 
 public class BasicAuction {
 
+	private static final int MAX_REQUESTS = 1;
+
 	@Test
 	public void hundredAuctions() throws Exception {
 	
@@ -13,7 +15,7 @@ public class BasicAuction {
     	BasicAuctioneer auctioneer = new BasicAuctioneer();
     	auctioneer.prepareRequest();
     	
-    	for (int i=0; i<100; i++)
+    	for (int i=0; i<MAX_REQUESTS; i++)
     		auctioneer.makeRequest();
     	
     	auctioneer.shutdown();

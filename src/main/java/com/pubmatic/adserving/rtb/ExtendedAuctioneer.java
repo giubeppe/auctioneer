@@ -39,33 +39,16 @@ import org.apache.http.protocol.RequestUserAgent;
 /**
  * Asynchronous HTTP/1.1 RTB Auctioneer.
  */
-public class BasicAuctioneer {
+public class ExtendedAuctioneer {
 
-    private static final int BIDDERS = 20;
-    private static final int MAX_WAIT_IN_MS = 100;
+    private static final int MAX_WAIT_IN_MS = 200;
     private static final double SIMULATOR_MAX_DELAY_IN_MS = 120.0; 
 
-//	public static void main(String[] args) throws Exception {
-//	
-//		long ts2;
-//		long ts = System.currentTimeMillis();
-//
-//    	Auctioneer auctioneer = new Auctioneer();
-//    	auctioneer.prepareRequest();
-//    	for (int i=0; i<100; i++)
-//    		auctioneer.makeRequest();
-//    	auctioneer.shutdown();
-//    	
-//    	ts2 = System.currentTimeMillis();
-//    	System.out.println("Auction total time: "+(ts2-ts)+"ms");
-//    }
-    
-	// Create client-side I/O reactor
     final private ConnectingIOReactor ioReactor;
     private BasicNIOConnPool pool = null;
     private HttpAsyncRequester requester = null;
 
-    public BasicAuctioneer() throws Exception {
+    public ExtendedAuctioneer() throws Exception {
     	ioReactor = new DefaultConnectingIOReactor();
     	initialize();
     }
@@ -119,9 +102,9 @@ public class BasicAuctioneer {
                 httpproc, new DefaultConnectionReuseStrategy(), params);
     }
     
-    public void makeRequest(final BidRequest bidRequest, final CountDownLatch latch) {
+    public void makePostRequest(final BaseBidRequest bidRequest, final CountDownLatch latch) {
     	
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/"+bidRequest.getPath()+"?id="+bidRequest.getId()+"&maxwait="+SIMULATOR_MAX_DELAY_IN_MS);
+        BasicHttpRequest request = new BasicHttpRequest("GET", "/" + bidRequest.getPath() + "?" +bidRequest.getQueryString()+"&maxwait="+SIMULATOR_MAX_DELAY_IN_MS);
         requester.execute(
                 new BasicAsyncRequestProducer(bidRequest.getTarget(), request),
                 new BasicAsyncResponseConsumer(),
@@ -132,14 +115,14 @@ public class BasicAuctioneer {
 
             public void completed(final HttpResponse response) {
                 latch.countDown();
-                System.out.println(bidRequest.getId() +" "+ bidRequest.getTarget() + "->" + response.getStatusLine());
+                System.out.println(bidRequest.getId() +" "+ bidRequest.getTarget() + " " + bidRequest.getQueryString() + " -> " + response.getStatusLine());
                 try {
                 	HttpEntity entity = response.getEntity();
                 	InputStream inputStream = entity.getContent();
                 	
                 	String utf8string = IOUtils.toString(inputStream, "UTF-8");
                 	                	
-                	System.out.println("\tResponse from "+bidRequest.getTarget() + "->" + utf8string);
+                	System.out.println("\tResponse from "+bidRequest.getTarget() + " " + bidRequest.getQueryString() + " -> " + utf8string);
                 } catch (Exception e) {}
                 
             }
@@ -157,51 +140,15 @@ public class BasicAuctioneer {
         
         System.out.println("Sent request for "+bidRequest.getPath()+" "+bidRequest.getId());
     }
-    
-    class BidRequest {
-    	private final HttpHost target;
-		private final String path;
-		private final String id;
-    	
-		public BidRequest(HttpHost target, String path, String id) {
-			this.target = target;
-			this.path = path;
-			this.id = id;
-		}
-
-    	public HttpHost getTarget() {
-			return target;
-		}
-
-		public String getPath() {
-			return path;
-		}
-		
-		public String getId() {
-			return id;
-		}
-    }
-    
-    private BidRequest[] bidRequests = null;
-    public void prepareRequest() {
-    	// Execute HTTP GETs to the following hosts and
-    	bidRequests = new BidRequest[BIDDERS];
-    	for (int i=0; i<bidRequests.length; i++) {
-    		bidRequests[i] = new BidRequest(new HttpHost("localhost", 8080, "http"), "dsp-simulator/bidder", new Integer(i).toString());
-//    		bidRequests[i] = new BidRequest(new HttpHost("localhost", 80, "http"), "bidder.html", new Integer(i).toString()); 
-    	}
-    }
-    
-    public void makeRequest() throws InterruptedException, IOException {
+        
+    public void makeRequest(final BaseBidRequest[] bidRequests) throws InterruptedException, IOException {
         
         final CountDownLatch latch = new CountDownLatch(bidRequests.length);
-        for (final BidRequest request: bidRequests) {
-        	makeRequest(request, latch);
+        for (final BaseBidRequest request: bidRequests) {
+        	makePostRequest(request, latch);
         }
         
-//        latch.await();
         latch.await(MAX_WAIT_IN_MS, TimeUnit.MILLISECONDS);
-        
     }
     
     public void shutdown() {
