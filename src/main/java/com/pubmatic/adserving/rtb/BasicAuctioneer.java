@@ -41,25 +41,12 @@ import org.apache.http.protocol.RequestUserAgent;
  */
 public class BasicAuctioneer {
 
-    private static final int BIDDERS = 20;
+    private static final int DEFAULT_BIDDERS = 20;
     private static final int MAX_WAIT_IN_MS = 100;
     private static final double SIMULATOR_MAX_DELAY_IN_MS = 120.0; 
-
-//	public static void main(String[] args) throws Exception {
-//	
-//		long ts2;
-//		long ts = System.currentTimeMillis();
-//
-//    	Auctioneer auctioneer = new Auctioneer();
-//    	auctioneer.prepareRequest();
-//    	for (int i=0; i<100; i++)
-//    		auctioneer.makeRequest();
-//    	auctioneer.shutdown();
-//    	
-//    	ts2 = System.currentTimeMillis();
-//    	System.out.println("Auction total time: "+(ts2-ts)+"ms");
-//    }
     
+    private int biddersN = DEFAULT_BIDDERS;
+        
 	// Create client-side I/O reactor
     final private ConnectingIOReactor ioReactor;
     private BasicNIOConnPool pool = null;
@@ -183,13 +170,22 @@ public class BasicAuctioneer {
     }
     
     private BidRequest[] bidRequests = null;
+    
     public void prepareRequest() {
     	// Execute HTTP GETs to the following hosts and
-    	bidRequests = new BidRequest[BIDDERS];
+    	bidRequests = new BidRequest[getBiddersN()];
     	for (int i=0; i<bidRequests.length; i++) {
     		bidRequests[i] = new BidRequest(new HttpHost("localhost", 8080, "http"), "dsp-simulator/bidder", new Integer(i).toString());
 //    		bidRequests[i] = new BidRequest(new HttpHost("localhost", 80, "http"), "bidder.html", new Integer(i).toString()); 
     	}
+    }
+    
+    public void setBiddersN(int biddersN) {
+    	this.biddersN = biddersN;
+    }
+    
+    public int getBiddersN() {
+    	return biddersN;
     }
     
     public void makeRequest() throws InterruptedException, IOException {

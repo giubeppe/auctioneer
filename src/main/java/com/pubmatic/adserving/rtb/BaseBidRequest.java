@@ -17,7 +17,7 @@ public abstract class BaseBidRequest {
 	}
 
 	public String getQueryString() {
-		
+				
 		String str = "";
 		
 		str = "requestId=ID_of_the_request"
